@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elite Sneakers</title>
-<style>
 
+<style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#f4f4f4}
 
@@ -115,44 +115,18 @@ cursor:pointer;
 .checkout-btn{
 width:100%;
 padding:8px;
-background:#ff3c00;
+background:#25D366;
 color:#fff;
 border:none;
 margin-top:10px;
 cursor:pointer;
-}
-
-/* MODAL */
-.modal{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.7);
-justify-content:center;
-align-items:center;
-z-index:3000;
-}
-.modal-content{
-background:#fff;
-padding:20px;
-width:90%;
-max-width:400px;
-border-radius:8px;
-}
-.modal input, .modal select{
-width:100%;
-padding:6px;
-margin:6px 0;
+border-radius:5px;
 }
 
 /* RESPONSIVO */
 @media(max-width:600px){
 .banner h1{font-size:28px}
 }
-
 </style>
 </head>
 <body>
@@ -179,41 +153,18 @@ margin:6px 0;
 <div class="produtos" id="produtos"></div>
 
 <div class="cart" id="cart">
-<h2>Meu Carrinho</h2>
+<h2>Meu Pedido</h2>
 <div id="cartItems"></div>
-<p>Frete: R$ <span id="frete">0</span></p>
-<p><b>Total: R$ <span id="total">0</span></b></p>
-<input type="text" id="cupom" placeholder="Cupom de desconto">
-<button onclick="aplicarCupom()">Aplicar Cupom</button>
-<button class="checkout-btn" onclick="abrirCheckout()">Finalizar</button>
-</div>
-
-<div class="modal" id="checkoutModal">
-<div class="modal-content">
-<h3>Finalizar Pedido</h3>
-<input type="text" id="nome" placeholder="Seu nome">
-<input type="text" id="endereco" placeholder="Endereço">
-<select id="pagamento">
-<option>Pix</option>
-<option>Dinheiro</option>
-<option>Cartão na entrega</option>
-</select>
-<button onclick="enviarWhats()">Confirmar Pedido</button>
-</div>
+<button class="checkout-btn" onclick="enviarWhats()">Enviar Pedido via WhatsApp</button>
 </div>
 
 <script>
 
-const numeroWhats = "5599999999999";
+const numeroWhats = "5599999999999"; // COLOQUE SEU NÚMERO AQUI
 
-const produtosData = [
-{nome:"Runner Pro",preco:399,categoria:"esportivo",estoque:5,img:"https://via.placeholder.com/300"},
-{nome:"Street Classic",preco:299,categoria:"casual",estoque:4,img:"https://via.placeholder.com/300"},
-{nome:"Luxury Gold",preco:799,categoria:"premium",estoque:2,img:"https://via.placeholder.com/300"}
-];
+const produtosData = [];
 
 let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
-let desconto = 0;
 
 function renderProdutos(lista){
 const container = document.getElementById("produtos");
@@ -223,37 +174,28 @@ container.innerHTML+=`
 <div class="card">
 <img src="${produto.img}">
 <h3>${produto.nome}</h3>
-<p>R$ ${produto.preco}</p>
-<p>Estoque: ${produto.estoque}</p>
-<button onclick="addCarrinho(${index})">Comprar</button>
+<p>Consulte disponibilidade</p>
+<button onclick="addCarrinho(${index})">Adicionar ao Pedido</button>
 </div>`;
 });
 }
 
 function addCarrinho(i){
-if(produtosData[i].estoque<=0){alert("Produto sem estoque");return;}
 carrinho.push(produtosData[i]);
-produtosData[i].estoque--;
 salvar();
 renderCarrinho();
-renderProdutos(produtosData);
 }
 
 function renderCarrinho(){
 const container=document.getElementById("cartItems");
 container.innerHTML="";
-let total=0;
 carrinho.forEach((item,i)=>{
-total+=item.preco;
 container.innerHTML+=`
 <div class="cart-item">
-<span>${item.nome} - R$ ${item.preco}</span>
+<span>${item.nome}</span>
 <button onclick="remover(${i})">X</button>
 </div>`;
 });
-let frete = total>500?0:30;
-document.getElementById("frete").textContent=frete;
-document.getElementById("total").textContent=(total+frete-desconto);
 }
 
 function remover(i){
@@ -271,24 +213,16 @@ if(cat==="todos") renderProdutos(produtosData);
 else renderProdutos(produtosData.filter(p=>p.categoria===cat));
 }
 
-function aplicarCupom(){
-let cupom=document.getElementById("cupom").value;
-if(cupom==="DESCONTO10"){desconto=10;alert("Cupom aplicado!")}
-renderCarrinho();
-}
-
-function abrirCheckout(){
-document.getElementById("checkoutModal").style.display="flex";
-}
-
 function enviarWhats(){
-let nome=document.getElementById("nome").value;
-let endereco=document.getElementById("endereco").value;
-let pagamento=document.getElementById("pagamento").value;
+if(carrinho.length===0){
+alert("Seu pedido está vazio");
+return;
+}
 
-let mensagem="Pedido:\n";
-carrinho.forEach(item=>mensagem+=item.nome+" - R$"+item.preco+"\n");
-mensagem+="\nCliente: "+nome+"\nEndereço: "+endereco+"\nPagamento: "+pagamento;
+let mensagem="Olá! Gostaria de pedir:\n\n";
+carrinho.forEach(item=>{
+mensagem+=item.nome+"\n";
+});
 
 window.open(`https://wa.me/${numeroWhats}?text=${encodeURIComponent(mensagem)}`);
 }
