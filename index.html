@@ -1,41 +1,311 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Loja de Tênis</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Sneakers</title>
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f4f4f4}
+
+/* NAVBAR */
+.navbar{
+position:fixed;
+top:0;
+width:100%;
+background:#000;
+color:#fff;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 30px;
+z-index:1000;
+}
+.logo{font-size:22px;font-weight:bold}
+.menu button{
+background:none;
+border:none;
+color:#fff;
+margin:0 10px;
+cursor:pointer;
+font-size:14px;
+}
+.search{
+padding:6px;
+border-radius:4px;
+border:none;
+}
+.cart-btn{
+background:#ff3c00;
+border:none;
+color:#fff;
+padding:7px 12px;
+cursor:pointer;
+border-radius:4px;
+}
+
+/* BANNER */
+.banner{
+margin-top:70px;
+height:60vh;
+background:linear-gradient(to right,#000,#444);
+color:#fff;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+}
+.banner h1{font-size:42px}
+
+/* PRODUTOS */
+.produtos{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+padding:30px;
+}
+.card{
+background:#fff;
+padding:15px;
+border-radius:10px;
+text-align:center;
+transition:.3s;
+}
+.card:hover{transform:scale(1.05)}
+.card img{width:100%;border-radius:8px}
+.card button{
+margin-top:8px;
+padding:6px 10px;
+border:none;
+background:#ff3c00;
+color:#fff;
+cursor:pointer;
+border-radius:4px;
+}
+
+/* CARRINHO */
+.cart{
+position:fixed;
+right:-400px;
+top:0;
+width:350px;
+height:100%;
+background:#fff;
+padding:20px;
+box-shadow:-2px 0 10px rgba(0,0,0,.3);
+transition:.4s;
+overflow:auto;
+z-index:2000;
+}
+.cart.active{right:0}
+.cart-item{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+}
+.cart-item button{
+background:red;
+border:none;
+color:#fff;
+padding:2px 6px;
+cursor:pointer;
+}
+.checkout-btn{
+width:100%;
+padding:8px;
+background:#ff3c00;
+color:#fff;
+border:none;
+margin-top:10px;
+cursor:pointer;
+}
+
+/* MODAL */
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.7);
+justify-content:center;
+align-items:center;
+z-index:3000;
+}
+.modal-content{
+background:#fff;
+padding:20px;
+width:90%;
+max-width:400px;
+border-radius:8px;
+}
+.modal input, .modal select{
+width:100%;
+padding:6px;
+margin:6px 0;
+}
+
+/* RESPONSIVO */
+@media(max-width:600px){
+.banner h1{font-size:28px}
+}
+
+</style>
 </head>
 <body>
 
-  <!-- CABEÇALHO -->
-  <header>
-    <div class="logo">Loja de Tênis</div>
-    <nav>
-      <a href="#produtos">Produtos</a>
-      <a href="#carrinho">Carrinho 🛒</a>
-    </nav>
-  </header>
+<div class="navbar">
+<div class="logo">Elite Sneakers</div>
 
-  <!-- SEÇÃO DE PRODUTOS -->
-  <section id="produtos" class="produtos-grid">
-    <!-- Exemplo de card de produto -->
-    <div class="produto-card">
-      <img src="images/airmax90.jpg" alt="Air Max 90">
-      <h3>Air Max 90</h3>
-      <p>R$ 379,00</p>
-      <button onclick="adicionarCarrinho('Air Max 90', 379)">Adicionar ao Carrinho</button>
-    </div>
-    <!-- Repita cards para mais tênis -->
-  </section>
+<div class="menu">
+<button onclick="filtrar('todos')">Todos</button>
+<button onclick="filtrar('esportivo')">Esportivo</button>
+<button onclick="filtrar('casual')">Casual</button>
+<button onclick="filtrar('premium')">Premium</button>
+</div>
 
-  <!-- SEÇÃO CARRINHO -->
-  <section id="carrinho">
-    <h2>Meu Carrinho</h2>
-    <ul id="itensCarrinho"></ul>
-    <p>Total: R$ <span id="total">0</span></p>
-  </section>
+<input type="text" class="search" id="search" placeholder="Buscar...">
+<button class="cart-btn" onclick="toggleCart()">🛒</button>
+</div>
 
-  <script src="script.js"></script>
+<div class="banner">
+<h1>Nova Coleção 2026</h1>
+<p>Os melhores sneakers do mercado</p>
+</div>
+
+<div class="produtos" id="produtos"></div>
+
+<div class="cart" id="cart">
+<h2>Meu Carrinho</h2>
+<div id="cartItems"></div>
+<p>Frete: R$ <span id="frete">0</span></p>
+<p><b>Total: R$ <span id="total">0</span></b></p>
+<input type="text" id="cupom" placeholder="Cupom de desconto">
+<button onclick="aplicarCupom()">Aplicar Cupom</button>
+<button class="checkout-btn" onclick="abrirCheckout()">Finalizar</button>
+</div>
+
+<div class="modal" id="checkoutModal">
+<div class="modal-content">
+<h3>Finalizar Pedido</h3>
+<input type="text" id="nome" placeholder="Seu nome">
+<input type="text" id="endereco" placeholder="Endereço">
+<select id="pagamento">
+<option>Pix</option>
+<option>Dinheiro</option>
+<option>Cartão na entrega</option>
+</select>
+<button onclick="enviarWhats()">Confirmar Pedido</button>
+</div>
+</div>
+
+<script>
+
+const numeroWhats = "5599999999999";
+
+const produtosData = [
+{nome:"Runner Pro",preco:399,categoria:"esportivo",estoque:5,img:"https://via.placeholder.com/300"},
+{nome:"Street Classic",preco:299,categoria:"casual",estoque:4,img:"https://via.placeholder.com/300"},
+{nome:"Luxury Gold",preco:799,categoria:"premium",estoque:2,img:"https://via.placeholder.com/300"}
+];
+
+let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+let desconto = 0;
+
+function renderProdutos(lista){
+const container = document.getElementById("produtos");
+container.innerHTML="";
+lista.forEach((produto,index)=>{
+container.innerHTML+=`
+<div class="card">
+<img src="${produto.img}">
+<h3>${produto.nome}</h3>
+<p>R$ ${produto.preco}</p>
+<p>Estoque: ${produto.estoque}</p>
+<button onclick="addCarrinho(${index})">Comprar</button>
+</div>`;
+});
+}
+
+function addCarrinho(i){
+if(produtosData[i].estoque<=0){alert("Produto sem estoque");return;}
+carrinho.push(produtosData[i]);
+produtosData[i].estoque--;
+salvar();
+renderCarrinho();
+renderProdutos(produtosData);
+}
+
+function renderCarrinho(){
+const container=document.getElementById("cartItems");
+container.innerHTML="";
+let total=0;
+carrinho.forEach((item,i)=>{
+total+=item.preco;
+container.innerHTML+=`
+<div class="cart-item">
+<span>${item.nome} - R$ ${item.preco}</span>
+<button onclick="remover(${i})">X</button>
+</div>`;
+});
+let frete = total>500?0:30;
+document.getElementById("frete").textContent=frete;
+document.getElementById("total").textContent=(total+frete-desconto);
+}
+
+function remover(i){
+carrinho.splice(i,1);
+salvar();
+renderCarrinho();
+}
+
+function toggleCart(){
+document.getElementById("cart").classList.toggle("active");
+}
+
+function filtrar(cat){
+if(cat==="todos") renderProdutos(produtosData);
+else renderProdutos(produtosData.filter(p=>p.categoria===cat));
+}
+
+function aplicarCupom(){
+let cupom=document.getElementById("cupom").value;
+if(cupom==="DESCONTO10"){desconto=10;alert("Cupom aplicado!")}
+renderCarrinho();
+}
+
+function abrirCheckout(){
+document.getElementById("checkoutModal").style.display="flex";
+}
+
+function enviarWhats(){
+let nome=document.getElementById("nome").value;
+let endereco=document.getElementById("endereco").value;
+let pagamento=document.getElementById("pagamento").value;
+
+let mensagem="Pedido:\n";
+carrinho.forEach(item=>mensagem+=item.nome+" - R$"+item.preco+"\n");
+mensagem+="\nCliente: "+nome+"\nEndereço: "+endereco+"\nPagamento: "+pagamento;
+
+window.open(`https://wa.me/${numeroWhats}?text=${encodeURIComponent(mensagem)}`);
+}
+
+function salvar(){
+localStorage.setItem("carrinho",JSON.stringify(carrinho));
+}
+
+document.getElementById("search").addEventListener("input",function(e){
+let termo=e.target.value.toLowerCase();
+renderProdutos(produtosData.filter(p=>p.nome.toLowerCase().includes(termo)));
+});
+
+renderProdutos(produtosData);
+renderCarrinho();
+
+</script>
+
 </body>
 </html>
