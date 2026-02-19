@@ -1,11 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <title>Meu Site</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Loja de Tênis</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Bem-vindo ao meu site 🚀</h1>
-  <p>Site criado usando GitHub Pages.</p>
+
+  <!-- CABEÇALHO -->
+  <header>
+    <div class="logo">Loja de Tênis</div>
+    <nav>
+      <a href="#produtos">Produtos</a>
+      <a href="#carrinho">Carrinho 🛒</a>
+    </nav>
+  </header>
+
+  <!-- SEÇÃO DE PRODUTOS -->
+  <section id="produtos" class="produtos-grid">
+    <!-- Exemplo de card de produto -->
+    <div class="produto-card">
+      <img src="images/airmax90.jpg" alt="Air Max 90">
+      <h3>Air Max 90</h3>
+      <p>R$ 379,00</p>
+      <button onclick="adicionarCarrinho('Air Max 90', 379)">Adicionar ao Carrinho</button>
+    </div>
+    <!-- Repita cards para mais tênis -->
+  </section>
+
+  <!-- SEÇÃO CARRINHO -->
+  <section id="carrinho">
+    <h2>Meu Carrinho</h2>
+    <ul id="itensCarrinho"></ul>
+    <p>Total: R$ <span id="total">0</span></p>
+  </section>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
